@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  VENDOR
+  ADMIN
+  SUPERADMIN
+}
+
+model User {
+  id            String       @id @default(cuid())
+  username      String       @unique
+  password      String
+  fullName      String
+  contactNumber String
+  address       String
+  email         String       @unique
+  role          UserRole     @default(VENDOR)
+  // Vendor specific fields
+  companyName   String?
+  vendorId      String?      @unique
+  // Admin specific fields
+  employeeId    String?      @unique
+  department    String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  quotations    Quotation[]
+  orders        Order[]      @relation("UserOrders")
+}
+
+model Quotation {
+  id             String   @id @default(cuid())
+  productService String
+  description    String
+  categories     String[]
+  status         String   @default("pending")
+  submittedAt    DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  orderId        String?
+  order          Order?   @relation(fields: [orderId], references: [id])
+}
+
+model Order {
+  id            String   @id @default(cuid())
+  productName   String
+  description   String
+  quantity      Int
+  specifications String?
+  status        String   @default("pending")
+  visibleToVendors Boolean @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  createdById   String
+  createdBy     User     @relation(fields: [createdById], references: [id], name: "UserOrders")
+  quotations    Quotation[]
+} 
