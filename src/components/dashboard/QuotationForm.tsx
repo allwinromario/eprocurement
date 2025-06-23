@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import toast from 'react-hot-toast'
 
 interface Category {
   id: string
@@ -49,6 +50,7 @@ export default function QuotationForm({ onQuotationAdded, orderId, userId }: Quo
       if (!userId) {
         setError('User not authenticated. Please log in again.')
         setLoading(false)
+        toast.error('User not authenticated. Please log in again.')
         return
       }
       const response = await fetch(orderId ? '/api/vendor/quotations' : '/api/quotations', {
@@ -58,6 +60,7 @@ export default function QuotationForm({ onQuotationAdded, orderId, userId }: Quo
       })
       const data = await response.json()
       if (!response.ok) {
+        toast.error(data.error || 'Failed to submit quotation')
         throw new Error(data.error || 'Failed to submit quotation')
       }
       setSuccess('Quotation submitted successfully!')
@@ -65,8 +68,10 @@ export default function QuotationForm({ onQuotationAdded, orderId, userId }: Quo
       if (onQuotationAdded) {
         onQuotationAdded(data.quotation)
       }
+      toast.success('Quotation submitted successfully!')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to submit quotation')
+      toast.error(err instanceof Error ? err.message : 'Failed to submit quotation')
     } finally {
       setLoading(false)
     }

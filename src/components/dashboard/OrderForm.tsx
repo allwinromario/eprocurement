@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import toast from 'react-hot-toast'
 
 interface OrderFormProps {
   adminId: string
@@ -33,8 +34,10 @@ export default function OrderForm({ adminId, onOrderPlaced }: OrderFormProps) {
       if (!res.ok) throw new Error(data.error || 'Failed to place order')
       onOrderPlaced(data.order)
       setForm({ productName: '', description: '', quantity: 1, specifications: '' })
+      toast.success('Order placed successfully!')
     } catch (err: any) {
       setError(err.message)
+      toast.error(err.message)
     } finally {
       setLoading(false)
     }

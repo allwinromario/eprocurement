@@ -42,4 +42,22 @@ export async function GET(
       { status: 500 }
     )
   }
+}
+
+export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+  try {
+    const body = await request.json()
+    const { fullName, contactNumber, address } = body
+    const user = await prisma.user.update({
+      where: { id: params.id },
+      data: {
+        ...(fullName && { fullName }),
+        ...(contactNumber && { contactNumber }),
+        ...(address && { address }),
+      },
+    })
+    return NextResponse.json({ user })
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 })
+  }
 } 

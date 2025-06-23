@@ -49,19 +49,22 @@ model Quotation {
   user           User     @relation(fields: [userId], references: [id])
   orderId        String?
   order          Order?   @relation(fields: [orderId], references: [id])
+  approvalReason String?  // Reason for admin approval of this quotation
 }
 
 model Order {
-  id            String   @id @default(cuid())
-  productName   String
-  description   String
-  quantity      Int
-  specifications String?
-  status        String   @default("pending")
-  visibleToVendors Boolean @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  createdById   String
-  createdBy     User     @relation(fields: [createdById], references: [id], name: "UserOrders")
-  quotations    Quotation[]
+  id                String   @id @default(cuid())
+  productName       String
+  description       String
+  quantity          Int
+  specifications    String?
+  status            String   @default("pending") // pending, approved, rejected, completed
+  visibleToVendors  Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  createdById       String
+  createdBy         User     @relation(fields: [createdById], references: [id], name: "UserOrders")
+  quotations        Quotation[]
+  approvedVendorId  String?  // Vendor who is approved for this order
+  approvalReason    String?  // Reason for approving this vendor/order
 } 
